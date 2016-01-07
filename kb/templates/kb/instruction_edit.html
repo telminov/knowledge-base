@@ -1,0 +1,17 @@
+{% extends 'kb/base.html' %}
+
+{% block head %}
+    {{ form.media.js }}
+    {{ form.media.css }}
+{% endblock %}
+
+{% block page_header %}{% if object %}Инструкция: «{{ object.name }}»{% else %}Новая инструкция{% endif %}{% endblock %}
+{% block body %}
+<form method="post">
+    {% csrf_token  %}
+    {% for item in form %}
+        {% include 'kb/forms/form_item.html' %}
+    {% endfor %}
+    <input type='submit' value='Отправить'>
+</form>
+{% endblock %}

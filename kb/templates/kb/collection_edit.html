@@ -1,0 +1,51 @@
+{% extends 'kb/base.html' %}
+{% block page_header %}Загруженный kb: {{ kb_collection.name }}{% endblock %}
+{% block body %}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+          Название: <b>{{ kb_collection.name }}</b>
+          Путь к файлу: <b>{{ kb_collection.file.path }}</b>
+      </div>
+    </div>
+
+    <header>Содержимое json:</header>
+    <table class="table">
+        <tr>
+            <th>№</th>
+            <th>view_path</th>
+            <th>url</th>
+            <th>kb_name</th>
+            <th>По view_path найдено:</th>
+        </tr>
+        {% for view_path, kb_info in kb_collection.get_dictionary.items %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    <a href="{% url "kb:user_manual_view" kb_info.id %}">{{ view_path }}</a>
+                    {% if request.user.is_superuser %}
+                        <a type="button" class="btn btn-default btn-xs" href="{% url "kb:user_manual_edit" kb_info.id %}">
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        </a>
+                    {% endif %}
+                </td>
+                <td>{{ kb_info.url }}</td>
+                <td>{{ kb_info.kb_name }}</td>
+                <td>{{ kb_info.user_manuals }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">сырой json</div>
+      <div class="panel-body">
+          {{ kb_collection.kb_json }}
+      </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="create_usermanuals" value="on">
+        <input class='btn btn-success'  type="submit" value="Создать usermanuals">
+    </form>
+{% endblock body %}

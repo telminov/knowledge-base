@@ -1,0 +1,10 @@
+{% if not item.is_hidden %}
+  <div class="form-group">
+    <label for="{{ item.auto_id }}">{{ item.label }}</label>
+    {{ item }}
+    {% if item.errors %}<span class="text-danger"><small>{{ item.errors|join:', ' }}</small></span>{% endif %}
+  </div>
+  <script>document.getElementById('{{ item.auto_id }}').classList.add('form-control')</script>
+{% else %}
+ {{ item }}
+{% endif %}

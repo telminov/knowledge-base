@@ -1,0 +1,95 @@
+{% extends 'kb/base.html' %}
+{% load formset_tags %}
+
+{% block head %}
+    {{ form.media.js }}
+    {{ form.media.css }}
+    <script src="{{ STATIC_URL }}js/jquery.formset.js"></script>
+    <script>
+    $(function(){
+        $('[data-formset-add]').click(function(){
+            {# Грязный хак оборачивания в setTimeout, без него не превращается в select2 #}
+            function ds2() {
+                $('.django-select2').djangoSelect2();
+            }
+            window.setTimeout(ds2, 1);
+
+        })
+    })
+    </script>
+{#    <script src="{{ STATIC_URL }}kb/js/canvas-to-blob.js"></script>#}
+{#    <script src="{{ STATIC_URL }}kb/js/fileinput.js"></script>#}
+{#    <link href="{{ STATIC_URL }}kb/css/fileinput.css" rel="stylesheet">#}
+{% endblock %}
+
+{% block page_header %}{% if object %}Мануал: «{{ object.name }}»{% else %}Новый мануал{% endif %}{% endblock %}
+{% block body %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token  %}
+    {% for item in form %}
+        {% include 'kb/forms/form_item.html' %}
+    {% endfor %}
+
+    <legend>Инструкции</legend>
+    <div id="formset" data-formset-prefix="{{ formset.prefix }}">
+        {{ formset.management_form }}
+
+        <div data-formset-body>
+            <!-- New forms will be inserted in here -->
+            {% for form in formset %}
+                <div data-formset-form class="form-inline">
+                    {% for item in form %}
+                        {% if item.name == 'DELETE' %}
+                            <div class="hidden">
+                                {% include 'kb/forms/form_inline_item.html' %}
+                            </div>
+                        {% else %}
+                            {% include 'kb/forms/form_inline_item.html' %}
+                        {% endif %}
+                    {% endfor %}
+                    <button type="button" data-formset-delete-button class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></button>
+                    <p></p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- The empty form template. By wrapping this in a <script> tag, the
+        __prefix__ placeholder can easily be replaced in both attributes and
+        any scripts -->
+        <script type="form-template" data-formset-empty-form>
+            {% escapescript %}
+                <div data-formset-form class="form-inline">
+                    {% for item in formset.empty_form %}
+                        {% if item.name == 'DELETE' %}
+                            <div class="hidden">
+                                {% include 'kb/forms/form_inline_item.html' %}
+                            </div>
+                        {% else %}
+                            {% include 'kb/forms/form_inline_item.html' %}
+                        {% endif %}
+                    {% endfor %}
+                    <button type="button" data-formset-delete-button class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></button>
+                    <p></p>
+                </div>
+            {% endescapescript %}
+        </script>
+
+        <!-- This button will add a new form when clicked -->
+{#        <input class='btn btn-success' type="button" value="Add another" data-formset-add>#}
+        <a class='btn btn-xs btn-success' data-formset-add><span class="glyphicon glyphicon-plus"></span> Добавить инструкцию</a>
+
+        <script>jQuery(function($) {
+            $("#formset").formset({
+                animateForms: true
+            });
+        });</script>
+
+    </div>
+
+
+    <button class='btn btn-success pull-right' type='submit'>Подтвердить форму</button>
+{#    <input type="file" class='file' id="test">#}
+</form>
+{#{% include 'kb/forms/form_inline_item.html' %}#}
+
+{% endblock %}

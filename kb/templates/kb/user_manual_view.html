@@ -1,0 +1,45 @@
+{% extends 'kb/base.html' %}
+
+{% block page_header %}Мануал: «{% if request.user.is_superuser %}<a href="{% url 'kb:user_manual_edit' object.id  %}">{{ object.name }}</a>{% else %}{{ object.name }}{% endif %}» / {{ object.view_path }}
+{% endblock %}
+
+{% block body %}
+<form method="post">
+    {% csrf_token  %}
+    <p class="blog-post-meta">Последнее изменение: {{ object.dm }}</p>
+    <h4>Отделы:
+        {% for departament in object.departaments.all %}
+            {{ departament.as_html_label }}
+        {% empty %}Нет{% endfor %}
+    </h4>
+    <hr>
+    <h4>Описание</h4>
+    <p>{{ object.description|safe|default:"Описание отсутствует" }}</p>
+    <hr>
+    <h4>Инструкции</h4>
+    <table class="table table-bordered">
+        <tr>
+            <th>№</th>
+            <th>Название</th>
+            <th>Отделы</th>
+            <th>Документ</th>
+        </tr>
+        {% for instruction in object.instructions.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ instruction.name }}</td>
+                <td>
+                    {% for departament in instruction.departaments.all %}
+                        {{ departament.as_html_label }}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% if instruction.file %}
+                        <a href="{{ instruction.file.url }}">{{ instruction.file }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</form>
+{% endblock %}

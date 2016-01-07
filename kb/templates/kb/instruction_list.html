@@ -1,0 +1,56 @@
+{% extends 'kb/base.html' %}
+{% block title  %}МИСММ - Knowledge base{% endblock %}
+
+{% block page_header %}
+    Список инструкций
+{% endblock %}
+{% block search_header %}
+    <div class="row">
+        <form method='get' class="form-inline pull-right">
+            <label>Департамент:</label>
+            {{ form.departament }}
+              <div class="form-group">
+                  {{ form.instruction }}
+              </div>
+              <button type="submit" class="btn btn-success">Найти</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block body %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>№</th>
+                  <th>Название</th>
+                  <th>Отделы</th>
+                  <th>Мануал</th>
+                  <th>Файл</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for instruction in object_list %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>
+                      <a href="{% url 'kb:instruction_edit' instruction.id %}">{{ instruction.name }}</a>
+                  </td>
+                  <td>
+                      {% for departament in instruction.departaments.all %}{{ departament.as_html_href }}{% empty %}Нет отделов {% endfor %}
+                  </td>
+                  <td>{% if instruction.manual %}<a href="{% url 'kb:user_manual_view' instruction.manual.id %}">{{ instruction.manual }}</a>{% endif %}</td>
+                  <td>
+                      {% if instruction.file %}
+                        <a href="{{ instruction.file.url }}">{{ instruction.file }}</a>
+                      {% else %}
+                          Не загружен
+                      {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+    <a class="btn btn-success" href="{% url 'kb:instruction_add' %}">Добавить</a>
+{% endblock %}

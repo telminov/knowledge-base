@@ -1,0 +1,22 @@
+{% if not item.is_hidden %}
+<div class="row {% if item.errors %}error{% endif %}">
+    <label class="col-sm-2 control-label {% if item.field.required %}required{% endif %}" for="{{ label_for|default:item.id_for_label }}">
+        {{ item.label }}
+    </label>
+    <div class="col-sm-10 controls">
+        {{ item }}
+        {% if item.errors %}
+            <span class="text-danger">
+                {{ item.errors|join:', ' }}
+            </span>
+        {% endif %}
+        {% if item.help_text and not help_off %}
+            <div class='clearfix'></div>
+            <small class='text-muted'>{{ item.help_text|safe }}</small>
+        {% endif %}
+    </div>
+</div>
+    <p></p>
+{% else %}
+    {{ item }}
+{% endif %}

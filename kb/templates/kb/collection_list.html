@@ -1,0 +1,22 @@
+{% extends 'kb/base.html' %}
+{% block page_header %}{% endblock %}
+{% block body %}
+<table border="1">
+<tr>
+    <th>№</th>
+    <th>name</th>
+    <th>file</th>
+    <th>dc</th>
+</tr>
+    {% for kb in object_list %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td><a href="{% url 'kb:collection_edit' kb.id %}">{{ kb.name }}</a></td>
+            <td>{{ kb.file }}</td>
+            <td>{{ kb.dc }}</td>
+            <td>{{ kb.kb_json|length }}</td>
+        </tr>
+    {% endfor %}
+</table>
+<a class='btn btn-success' href='{% url 'kb:upload' %}'>Добавить новый</a>
+{% endblock %}
