@@ -1,5 +1,0 @@
----
-- hosts: root-hosts
-  sudo: true
-  roles:
-    - system
