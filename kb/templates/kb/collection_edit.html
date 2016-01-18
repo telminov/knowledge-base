@@ -1,6 +1,6 @@
 {% extends 'kb/base.html' %}
 {% block page_header %}Загруженный kb: {{ kb_collection.name }}{% endblock %}
-{% block body %}
+{{% block content %}
 
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -48,4 +48,4 @@
         <input type="hidden" name="create_usermanuals" value="on">
         <input class='btn btn-success'  type="submit" value="Создать usermanuals">
     </form>
-{% endblock body %}
+{% endblock content %}

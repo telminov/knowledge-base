@@ -71,7 +71,8 @@
               if ($(value).children('a').attr('href') == window.location.pathname){
                   $(value).addClass('active');
               }
-          })
+          });
+          $('[data-toggle="tooltip"]').tooltip();
         })
     </script>
     <!--Подсвечиываем активный раздел меню-->
@@ -80,27 +81,21 @@
   </head>
 
   <body>
+  {% block body %}
+
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
           <a class="navbar-brand" href="{% url 'kb:user_manual_list' %}">База знаний МИСММ</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
+
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="{% url 'admin:index' %}">Админка</a></li>
-            <li><a href="#">Settings</a></li>
-            <li><a href="#">Profile</a></li>
-            <li><a href="#">Help</a></li>
+            {% if not request.user.is_anonymous%}
+                <li> <a>Вы вошли как {{ request.user }}</a></li>
+                <li><a href="{% url 'kb:logout' %}">Выйти</a></li>
+            {% endif %}
           </ul>
-{#          <form class="navbar-form navbar-right">#}
-{#            <input type="text" class="form-control" placeholder="Search...">#}
-{#          </form>#}
         </div>
       </div>
     </nav>
@@ -111,39 +106,28 @@
         <div class="col-sm-3 col-md-2 sidebar">
           {% block sidebar %}
           <ul class="nav nav-sidebar">
-            <li><a href="{% url 'kb:user_manual_list' %}">Список мануалов <span class="sr-only">(current)</span></a></li>
-            <li><a href="{% url 'kb:instruction_list' %}">Список инструкций</a></li>
-{#            <li><a href="{% url 'kb:collection_list' %}">Загруженные файлы</a></li>#}
-{#            <li><a href="{% url 'kb:upload' %}">Загрузить файл</a></li>#}
-{#            <li><a href="#">Google документы</a></li>#}
-{#            <li><a href="{% url 'kb:schema' %}">Экспорт</a></li>#}
+            <li><a href="{% url 'kb:user_manual_list' %}">Список справок <span class="sr-only">(current)</span></a></li>
+            <li><a href="{% url 'kb:instruction_list' %}">Список пользовательских инструкций</a></li>
           </ul>
           {% endblock sidebar %}
         </div>
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-        <div class="row">
-            <div class="col-sm-6"><h4>{% block page_header %}{% endblock %}</h4></div>
-            <div class="col-sm-6">
-                {% block search_header %}{% endblock %}
-            </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            {% block header %}
+                <div class="row">
+                    <div class="col-sm-6"><h4>{% block page_header %}{% endblock %}</h4></div>
+                    <div class="col-sm-6">
+                        {% block search_header %}{% endblock %}
+                    </div>
+                </div>
+            {% endblock header %}
+            <hr>
+            {% block content %}
+            {% endblock content %}
         </div>
-        <hr>
-        {% block body %}
-        {% endblock body %}
-    </div>
 
+        </div>
     </div>
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-{#    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>#}
-{#    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>#}
-{#    <script src="../../dist/js/bootstrap.min.js"></script>#}
-{#    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->#}
-{#    <script src="../../assets/js/vendor/holder.min.js"></script>#}
-{#    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->#}
-{#    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>#}
+  {% endblock body %}
   </body>
 </html>
 

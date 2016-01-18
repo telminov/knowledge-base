@@ -2,12 +2,12 @@
 {% block title  %}МИСММ - Knowledge base{% endblock %}
 
 {% block page_header %}
-    Список инструкций
+    Список пользовательских инструкций
 {% endblock %}
 {% block search_header %}
     <div class="row">
         <form method='get' class="form-inline pull-right">
-            <label>Департамент:</label>
+            <label>Отдел:</label>
             {{ form.departament }}
               <div class="form-group">
                   {{ form.instruction }}
@@ -17,7 +17,7 @@
     </div>
 {% endblock %}
 
-{% block body %}
+{% block content %}
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -25,7 +25,7 @@
                   <th>№</th>
                   <th>Название</th>
                   <th>Отделы</th>
-                  <th>Мануал</th>
+                  <th>Справки</th>
                   <th>Файл</th>
                 </tr>
               </thead>
@@ -37,9 +37,9 @@
                       <a href="{% url 'kb:instruction_edit' instruction.id %}">{{ instruction.name }}</a>
                   </td>
                   <td>
-                      {% for departament in instruction.departaments.all %}{{ departament.as_html_href }}{% empty %}Нет отделов {% endfor %}
+                      {% for departament in instruction.departaments.all %}{{ departament.as_search_button_instructions }} {% empty %}Нет отделов {% endfor %}
                   </td>
-                  <td>{% if instruction.manual %}<a href="{% url 'kb:user_manual_view' instruction.manual.id %}">{{ instruction.manual }}</a>{% endif %}</td>
+                  <td>{% for usermanual in instruction.usermanuals.all %}{{ usermanual }}, {% empty %}Нет относится ни к каким справкам{% endfor %}</td>
                   <td>
                       {% if instruction.file %}
                         <a href="{{ instruction.file.url }}">{{ instruction.file }}</a>
@@ -52,5 +52,5 @@
               </tbody>
             </table>
           </div>
-    <a class="btn btn-success" href="{% url 'kb:instruction_add' %}">Добавить</a>
+    <a class="btn btn-success" href="{% url 'kb:instruction_add' %}"><span class="glyphicon glyphicon-plus"></span>Добавить</a>
 {% endblock %}

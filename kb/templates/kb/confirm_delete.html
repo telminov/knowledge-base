@@ -1,0 +1,15 @@
+{% extends 'kb/base.html' %}
+
+
+{% block page_header %}Подтверждение на удаление: «{{ object }}»{% endblock %}
+
+{% block content %}
+    {% for item in form %}
+        {% include 'kb/forms/form_item.html' %}
+    {% endfor %}
+
+    <form action="" method="post">{% csrf_token %}
+            <p>Уверены что хотите удалить «{{ object }}»?</p>
+            <input type="submit" value="Да, удалить" />
+    </form>
+{% endblock %}

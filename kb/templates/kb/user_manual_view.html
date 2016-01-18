@@ -1,22 +1,22 @@
 {% extends 'kb/base.html' %}
 
-{% block page_header %}Мануал: «{% if request.user.is_superuser %}<a href="{% url 'kb:user_manual_edit' object.id  %}">{{ object.name }}</a>{% else %}{{ object.name }}{% endif %}» / {{ object.view_path }}
+{% block page_header %}Справка: «{% if request.user.is_superuser %}<a href="{% url 'kb:user_manual_edit' object.id  %}">{{ object.name }}</a>  / {{ object.view_path }}{% else %}{{ object.name }}{% endif %}»
 {% endblock %}
 
-{% block body %}
+{% block content %}
 <form method="post">
     {% csrf_token  %}
     <p class="blog-post-meta">Последнее изменение: {{ object.dm }}</p>
     <h4>Отделы:
-        {% for departament in object.departaments.all %}
-            {{ departament.as_html_label }}
+        {% for departament in object.departaments %}
+            {{ departament.as_search_button_usermanuals }}
         {% empty %}Нет{% endfor %}
     </h4>
     <hr>
     <h4>Описание</h4>
     <p>{{ object.description|safe|default:"Описание отсутствует" }}</p>
     <hr>
-    <h4>Инструкции</h4>
+    <h4>Пользовательские инструкции</h4>
     <table class="table table-bordered">
         <tr>
             <th>№</th>

@@ -1,0 +1,31 @@
+{% extends "kb/base.html" %}
+{% block sidebar %}{% endblock %}
+
+{% block body %}
+    <div class="col-sm-12">
+        <div class="center">
+            <h1>Необходимо выполнить вход</h1>
+            <div class="well">
+                <form method="post" class="form-horizontal" action="{% url 'kb:custom_login' %}">
+                    {% csrf_token %}
+                    <div class="col-sm-6">
+                        {% if form.non_field_errors %}
+                            {% for error, value in form.errors.items %}
+                                <p class='help text-danger'><small>{{ value|join:"" }}</small></p>
+                            {% endfor %}
+                        {% endif %}
+                    {% include "kb/forms/form_item.html" with item=form.username  %}
+                    {% include "kb/forms/form_item.html" with item=form.password  %}
+                        </div>
+                     <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <input type="submit" value="Зайти" class="btn btn-default btn-success" />
+                            <input type="hidden" name="next" value="{{ next }}" />
+                        </div>
+                     </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

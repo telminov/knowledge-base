@@ -1,13 +1,15 @@
 {% extends 'kb/base.html' %}
 {% block title  %}МИСММ - Knowledge base{% endblock %}
 
-{% block page_header %}
-    Мануалы
-{% endblock %}
-{% block search_header %}
-    <div class="row">
+{% block header %}
+<div class="row">
+    <div class="col-sm-2"><h4>Справки</h4></div>
+    <div class="col-sm-10">
+        <div class="row">
         <form method='get' class="form-inline pull-right">
-            <label>Департамент:</label>
+            <label>Приложение:</label>
+            {{ form.app }}
+            <label>Отдел:</label>
             {{ form.departament }}
               <div class="form-group">
                   {{ form.usermanual }}
@@ -15,9 +17,11 @@
               <button type="submit" class="btn btn-success">Найти</button>
         </form>
     </div>
-{% endblock %}
+    </div>
+</div>
+{% endblock header %}
 
-{% block body %}
+{% block content %}
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -25,10 +29,9 @@
                   <th>№</th>
                   <th>Название</th>
                   <th>Отделы</th>
-                  <th>View path</th>
+                  <th>Приложение</th>
                   <th>Описание</th>
                   <th>Руководства</th>
-                  <th>Pdf</th>
                 </tr>
               </thead>
               <tbody>
@@ -39,9 +42,9 @@
                       <a href="{% url 'kb:user_manual_view' user_manual.id %}">{{ user_manual.name }}</a>
                   </td>
                   <td>
-                      {% for departament in user_manual.departaments.all %}{{ departament.as_html_href }} {% endfor %}
+                      {% for departament in user_manual.departaments %}{{ departament.as_search_button_usermanuals }} {% endfor %}
                   </td>
-                  <td>{{ user_manual.view_path }}</td>
+                  <td>{{ user_manual.get_app }}</td>
                   <td>{{ user_manual.description|safe }}</td>
                   <td>
                       {% for instruction in user_manual.instructions.all %}
@@ -54,16 +57,10 @@
                           Нет
                       {% endfor %}
                   </td>
-                  <td>{% for doc in user_manual.documents.all %}
-                      <a href="{{ doc.file.url }}">{{ doc }}</a>
-                      {% empty %}
-                        Нет
-                      {% endfor %}
-                  </td>
                 </tr>
               {% endfor %}
               </tbody>
             </table>
           </div>
-    <a class="btn btn-success" href="{% url 'kb:user_manual_add' %}">Добавить</a>
+    <a class="btn btn-success" href="{% url 'kb:user_manual_add' %}"><span class="glyphicon glyphicon-plus"></span> Добавить</a>
 {% endblock %}

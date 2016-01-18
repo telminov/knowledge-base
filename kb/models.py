@@ -14,38 +14,33 @@ def upload_json(instance, filename):
     return filename
 
 
-# class KbCollection(models.Model):
-#     """ Хранение истории загруженных файлов за время работы программы.
-#     """
-#     name = models.CharField(u'Название загруженного файла', max_length=255, unique=True)
-#     kb_json = models.TextField(u'Текст json из проекта')
-#     dc = models.DateTimeField(u'Время загрузки', auto_now_add=True)
-#     file = models.FileField(u'Файл json', upload_to=upload_json, blank=True)
-#
-#     class Meta:
-#         verbose_name = u'Загруженные json файлы'
-#         verbose_name_plural = u'Загруженные json файлы'
-#         ordering = ('-dc', )
-#
-#     def __str__(self):
-#         return '%s | %s' % (self.dc, self.kb_json[:15])
-#
-#     def get_dictionary(self):
-#         d_info = json.loads(self.kb_json.encode('unicode_escape').decode('utf8'))
-#         for view_path, kb_info in d_info.items():
-#             # view_path = kb_info.get('view_path')
-#             url = kb_info.get('url')
-#             if view_path:
-#                 user_manuals = UserManual.objects.filter(view_path=view_path)
-#                 kb_info['user_manuals'] = user_manuals
-#                 if user_manuals:
-#                     kb_info['id'] = user_manuals.first().id
-#         return d_info
+class KbUserManualName(models.Model):
+    kb_name = models.CharField(max_length=255)
+    view_path = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'Название справки'
+        verbose_name_plural = 'Названия справок'
+
+    def __str__(self):
+        return '%s ^ %s' % (self.kb_name, self.view_path)
+        # return '%s' % self.kb_name
+
+    @staticmethod
+    def load_from_json(json_file):
+        chunks = list(json_file.chunks())
+        json_str = ''.join([chunk.decode('utf-8') for chunk in chunks])
+        json_as_dict = json.loads(json_str.encode('unicode_escape').decode('utf8'))
+        for view_path, data in json_as_dict.items():
+            kb_name = data.get('kb_name')
+            kb_user_manual_name, created = KbUserManualName.objects.get_or_create(view_path=view_path)
+            kb_user_manual_name.kb_name = kb_name
+            kb_user_manual_name.save(0)
 
 
 class App(models.Model):
     name = models.CharField('Имя приложения', max_length=255, help_text='Никакой доп инфы нету')
-
+    code = models.CharField('На латинице как во вьюхе', max_length=255)
     class Meta:
         verbose_name = 'Приложение'
         verbose_name_plural = 'Приложения'
@@ -55,13 +50,13 @@ class App(models.Model):
 
 
 class Departament(models.Model):
-    name = models.CharField('Департамент', max_length=255, help_text='Департамент, которых касается инструкция')
+    name = models.CharField('Отдел (департамент)', max_length=255, help_text='Департамент, которых касается инструкция')
     color = models.CharField('Цвет из bootstrap', max_length=255, blank=True)
-    apps = models.ManyToManyField(App, verbose_name=u'Приложения', help_text='Приложения с которыми работает департамент', blank=True)
+    apps = models.ManyToManyField(App, verbose_name=u'Приложения', help_text='Приложения с которыми работает отдел', blank=True)
 
     class Meta:
-        verbose_name = 'Департамент'
-        verbose_name_plural = 'Департаменты'
+        verbose_name = 'Отдел'
+        verbose_name_plural = 'Отделы'
 
     def __str__(self):
         return '%s' % self.name
@@ -69,31 +64,39 @@ class Departament(models.Model):
     def as_html_label(self):
         return mark_safe("<span class='label label-{color}'>{name}</span>".format(color=self.color, name=self.name))
 
-    def as_html_href(self):
+    def as_search_button_usermanuals(self):
         url = reverse('kb:user_manual_list') + '?departament=%s' % self.id
+        return mark_safe("<a href={href} class='btn btn-xs btn-{color}'>{name}</a>".format(color=self.color, name=self.name, href=url))
+
+    def as_search_button_instructions(self):
+        url = reverse('kb:instruction_list') + '?departament=%s' % self.id
         return mark_safe("<a href={href} class='btn btn-xs btn-{color}'>{name}</a>".format(color=self.color, name=self.name, href=url))
 
 
 class UserManual(models.Model):
-    # DEPARTAMENT_CHOICES = (
-    #     ('Регистраторы','Регистраторы'),
-    #     ('Менеджеры','Менеджеры'),
-    #     ('Проф департамент','Проф департамент'),
-    #     ('Аналитика','Аналитика'),
-    #     ('Контроль качества','Контроль качества'),
-    # )
-    name = models.CharField('Название', max_length=255, help_text='Копируется из kb_name')
+    name = models.CharField('Название', max_length=255, help_text='Названия предзагружаются из МИС ММ. Если справка уже создана, то ее название выбрать нельзя')
     view_path = models.CharField('view path в проекте', max_length=255, blank=True)
-    departaments = models.ManyToManyField(Departament, verbose_name=u'Отделы', blank=True)
+    instructions = models.ManyToManyField('Instruction', verbose_name=u'Пользовательские инструкции', related_name='usermanuals', null=True, blank=True)
     description = models.TextField('Описание', blank=True)
     dm = models.DateTimeField('Дата модификации', auto_now=True)
+
+    def departaments(self):
+        departments_ids = set()
+        for instruction in self.instructions.all():
+            departments_ids.update(instruction.departaments.values_list('id', flat=True))
+
+        return Departament.objects.filter(id__in=departments_ids)
+
+    def get_app(self):
+        app = App.objects.filter(code=self.view_path.split('.')[0])[0]
+        return app.name if app else ''
 
     def get_absolute_url(self):
         return reverse('kb.views.user_manual_edit', args=(self.id,))
 
     class Meta:
-        verbose_name = 'Мануал'
-        verbose_name_plural = 'Мануалы'
+        verbose_name = 'Справка'
+        verbose_name_plural = 'Справки'
 
     def __str__(self):
         return '%s' % self.name
@@ -107,13 +110,11 @@ def validate_file_extension(value):
 class Instruction(models.Model):
     name = models.CharField('Название', max_length=255)
     departaments = models.ManyToManyField(Departament, verbose_name=u'Отделы', blank=True)
-    # document = models.OneToOneField('Document', verbose_name=u'Документ', blank=True, null=True)
-    manual = models.ForeignKey(UserManual, verbose_name=u'Мануал', related_name='instructions', blank=True, null=True)
     url = models.URLField('Ссылка на googledocs', blank=True)
     file = models.FileField('Файл', blank=True, validators=[validate_file_extension])
     class Meta:
-        verbose_name = 'Инструкция'
-        verbose_name_plural = 'Инструкции'
+        verbose_name = 'Пользовательская инструкция'
+        verbose_name_plural = 'Пользовательские инструкции'
 
     def __str__(self):
         return '%s' % self.name

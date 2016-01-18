@@ -1,17 +1,25 @@
 {% extends 'kb/base.html' %}
 
 {% block head %}
+    <!---MEDIA --->
     {{ form.media.js }}
     {{ form.media.css }}
+    <!---END MEDIA --->
 {% endblock %}
 
-{% block page_header %}{% if object %}Инструкция: «{{ object.name }}»{% else %}Новая инструкция{% endif %}{% endblock %}
-{% block body %}
-<form method="post">
+{% block page_header %}{% if object %}Пользовательская инструкция: «{{ object.name }}»{% else %}Новая пользовательская инструкция{% endif %}{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data">
     {% csrf_token  %}
     {% for item in form %}
         {% include 'kb/forms/form_item.html' %}
     {% endfor %}
-    <input type='submit' value='Отправить'>
+
+    <div class="row well well-sm">
+        {% if object.id %}
+            <a class='btn btn-danger' href="{% url 'kb:instruction_delete' object.id %}"><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+        {% endif %}
+        <button class='btn btn-success pull-right' type='submit'><span class="glyphicon glyphicon-ok"></span> Сохранить</button>
+    </div>
 </form>
 {% endblock %}
