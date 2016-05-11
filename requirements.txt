@@ -1,6 +1,7 @@
 Django==1.9
 Django-Select2==5.8.4
-mysql-connector-python==2.0.4
-PyMySQL==0.6.7
+#mysql-connector-python==2.0.4
+#PyMySQL==0.6.7
+six
 django-formset-js==0.5.0
 django-tinymce==2.2.0
