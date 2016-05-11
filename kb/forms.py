@@ -27,7 +27,7 @@ class UserManual(forms.ModelForm):
         model = kb.models.UserManual
         fields = ('name', 'description', 'instructions',)
         widgets = {
-            'name': HeavySelect2Widget(attrs={'style': 'width:100%'}, data_url='/kb_name/', choices=((val, val) for val in kb.models.KbUserManualName.objects.values_list('kb_name', flat=True))),
+            'name': HeavySelect2Widget(attrs={'style': 'width:100%'}, data_url='/kb_name/', choices=()),
             'description': tinymce.widgets.TinyMCE(attrs={'style': 'width:100%'}),
             'instructions': InstructionsWidget(attrs={'style': 'width:100%'})
         }
@@ -39,6 +39,7 @@ class UserManual(forms.ModelForm):
         super(UserManual, self).__init__(*args, **kwargs)
         if self.instance.id:
             self.fields['name'].widget = forms.TextInput()
+        self.fields['name'].choices = ((val, val) for val in kb.models.KbUserManualName.objects.values_list('kb_name', flat=True))
 
     def save(self, commit=True):
         instance = super(UserManual, self).save(commit)

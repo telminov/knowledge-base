@@ -10,8 +10,6 @@ https://docs.djangoproject.com/en/dev/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
-import pymysql
-pymysql.install_as_MySQLdb()
 
 import os
 
@@ -25,7 +23,7 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
+print('may version')
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -53,7 +51,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
     {
@@ -77,20 +75,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'project.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'knowledge_base',
-        'USER': '',
-        'PASSWORD': '',
-    }
-}
 
 
 # Password validation
@@ -138,4 +126,9 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
+KB_NAME_FILE_PATH = os.path.join(BASE_DIR, 'knowledge_base_user_manual_names.sample.json')
 
+try:
+    from project.local_settings import *
+except ImportError:
+    print("Warning: no local_settings.py")
